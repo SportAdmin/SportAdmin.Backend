@@ -1,11 +1,9 @@
 ﻿using GraphQL;
 using GraphQL.Types;
 using GraphQLManager.GraphQLOperation.Type.Member;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using MemberManager;
+using Grpc.Net.Client;
 
 namespace GraphQLManager.GraphQLOperation
 {
@@ -13,18 +11,24 @@ namespace GraphQLManager.GraphQLOperation
     {
         public SportAdminQuery()
         {
-            Field<MemberGraphType>(
-                "member",
-                arguments: new QueryArguments(
-                    new QueryArgument<StringGraphType> { Name = "id", }),
-                resolve: context =>
+            FieldAsync<MemberGraphType>(
+                "me",
+                resolve: async context =>
                 {
-
                     var UserContext = context.UserContext as IProvideClaimsPrincipal;
 
-                    var id = context.GetArgument<string>("id");
-
-                    MemberItem item = new MemberItem() { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value };
+                    // The port number(5001) must match the port of the gRPC server.
+                    using var channel = GrpcChannel.ForAddress("https://localhost:5005");
+                    var client = new Members.MembersClient(channel);
+                    var reply = await client.getMemberAsync(
+                                      new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value });
+                    
+                    MemberItem item = new MemberItem() 
+                    { 
+                        Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value,
+                        FirstName = reply.Firstname,
+                        LastName = reply.Lastname
+                    };
 
                     return item;
                 }
