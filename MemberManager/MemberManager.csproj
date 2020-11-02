@@ -6,10 +6,20 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.33.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="3.1.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MemberManager.GPRC\MemberManager.GPRC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="rpcSslCert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sportadminSslCert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

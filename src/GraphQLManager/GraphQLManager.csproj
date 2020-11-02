@@ -33,4 +33,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\MemberManager.GPRC\MemberManager.GPRC.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="rpcSelfCert.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

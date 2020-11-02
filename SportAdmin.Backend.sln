@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemberManager.GPRC", "Membe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemberManager", "MemberManager\MemberManager.csproj", "{7BA7026D-8417-4223-9BB3-C4FAAEEB0125}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cert", "Cert", "{4808D477-4DC4-44B6-AC9B-0AA3F40C42C0}"
+	ProjectSection(SolutionItems) = preProject
+		makecerts.ps1 = makecerts.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
