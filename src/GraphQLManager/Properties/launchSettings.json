@@ -17,7 +17,6 @@
     },
     "GraphQLManager": {
       "commandName": "Project",
-      "launchBrowser": true,
       "launchUrl": "/ui/playground",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

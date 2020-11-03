@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Grpc.Core;
+using GraphQL.Validation;
 
 namespace GraphQLManager.GraphQLOperation
 {
@@ -23,30 +24,31 @@ namespace GraphQLManager.GraphQLOperation
                 "me",
                 resolve: async context =>
                 {
-                    var UserContext = context.UserContext as IProvideClaimsPrincipal;
-
-                    var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
-                                                    _config["MemberManager:CertPassword"]);
-
-                    var handler = new HttpClientHandler();
-                    handler.ClientCertificates.Add(cert);
-
-                    var opt = new GrpcChannelOptions()
-                    {
-                        HttpClient = new HttpClient(handler)
-                    };
-
-                    using var channel = GrpcChannel.ForAddress(_config["MemberManager:ServerUrl"], opt);
-                    var client = new Members.MembersClient(channel);
                     try
                     {
+                        var UserContext = context.UserContext as IProvideClaimsPrincipal;
+
+                        var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
+                                                        _config["MemberManager:CertPassword"]);
+
+                        var handler = new HttpClientHandler();
+                        handler.ClientCertificates.Add(cert);
+
+                        var opt = new GrpcChannelOptions()
+                        {
+                            HttpClient = new HttpClient(handler)
+                        };
+
+                        using var channel = GrpcChannel.ForAddress(_config["MemberManager:ServerUrl"], opt);
+                        var client = new Members.MembersClient(channel);
+
                         var headers = new Metadata();
-                        headers.Add("Authorization", UserContext.Token);
+                        headers.Add("Authorization", "ghh" + UserContext.Token);
 
                         var reply = await client.getMemberAsync(
                                       new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value },
                                       headers);
-                        
+
                         MemberItem item = new MemberItem()
                         {
                             Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value,
@@ -58,8 +60,14 @@ namespace GraphQLManager.GraphQLOperation
                     }
                     catch (System.Exception ex)
                     {
+                        context.Errors.Add(new ValidationError(
+                            context.Document.OriginalQuery,
+                            "auth-required",
+                            $"Authorization is required to access.",
+                            context.Document.Children.ToArray()));
+                        //throw;
 
-                        throw;  
+                        return null;
                     }
                 }
             );

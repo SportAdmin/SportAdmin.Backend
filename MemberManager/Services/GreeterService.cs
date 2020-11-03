@@ -12,8 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemberManager
 {
-    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme,)]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme, Policy = "Bearer")]
     public class GreeterService : Members.MembersBase
     {
         private readonly ILogger<GreeterService> _logger;
