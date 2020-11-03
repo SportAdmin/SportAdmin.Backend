@@ -1,6 +1,7 @@
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
 using GraphQLManager.GraphQLOperation;
+using GraphQLParser;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +27,7 @@ namespace GraphQLManager
                 .AddDataLoader()
                 .AddSystemTextJson()
                 .AddGraphTypes(ServiceLifetime.Singleton)
-                .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User });
+                .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User, Token = httpContext.Request.Headers["Authorization"] });
 
             services.AddAuthentication("bearer")
                    .AddIdentityServerAuthentication("bearer", options =>

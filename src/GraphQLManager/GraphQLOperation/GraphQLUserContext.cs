@@ -9,10 +9,12 @@ namespace GraphQLManager.GraphQLOperation
     public class GraphQLUserContext : Dictionary<string, object>, IProvideClaimsPrincipal
     {
         public ClaimsPrincipal User { get;  set; }
+        public string Token { get; set; }
     }
 
     public interface IProvideClaimsPrincipal
     {
         ClaimsPrincipal User { get; }
+        string Token { get; }
     }
 }

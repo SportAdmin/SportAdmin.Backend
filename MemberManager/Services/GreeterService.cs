@@ -1,18 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace MemberManager
 {
-    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme,)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GreeterService : Members.MembersBase
     {
         private readonly ILogger<GreeterService> _logger;
+
         public GreeterService(ILogger<GreeterService> logger)
         {
             _logger = logger;
@@ -20,7 +25,9 @@ namespace MemberManager
 
         public override Task<MemberReply> getMember(MemberRequest request, ServerCallContext context)
         {
-            return Task.FromResult(new MemberReply() { FirstName = "Fredrik", LastName = "Larsson" });
+            var id = context.GetHttpContext().User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value;
+
+            return Task.FromResult(new MemberReply() { Id = id, FirstName = "Fredrik", LastName = "Larsson" });
         }
     }
 }

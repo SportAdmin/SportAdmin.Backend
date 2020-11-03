@@ -7,6 +7,7 @@ using Grpc.Net.Client;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
+using Grpc.Core;
 
 namespace GraphQLManager.GraphQLOperation
 {
@@ -35,12 +36,16 @@ namespace GraphQLManager.GraphQLOperation
                         HttpClient = new HttpClient(handler)
                     };
 
-                    using var channel = GrpcChannel.ForAddress(_config["MemberManager:ServerUrl"]);
+                    using var channel = GrpcChannel.ForAddress(_config["MemberManager:ServerUrl"], opt);
                     var client = new Members.MembersClient(channel);
                     try
                     {
+                        var headers = new Metadata();
+                        headers.Add("Authorization", UserContext.Token);
+
                         var reply = await client.getMemberAsync(
-                                      new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value });
+                                      new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value },
+                                      headers);
                         
                         MemberItem item = new MemberItem()
                         {
