@@ -34,8 +34,8 @@ $webCert = New-SelfSignedCertificate -Type Custom `
 -CertStoreLocation "cert://currentuser/My" `
 -Signer $cert
 
-
-$PFXPass = ConvertTo-SecureString -String "_j4sKQtp[pZ(Rt{," -Force -AsPlainText
+# Change change_password to somethong else
+$PFXPass = ConvertTo-SecureString -String "change_password" -Force -AsPlainText
 
 Write-Host "Exporting Certificates to File"
 
