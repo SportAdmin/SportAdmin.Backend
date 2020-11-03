@@ -59,15 +59,8 @@ namespace GraphQLManager.GraphQLOperation
                         return item;
                     }
                     catch (System.Exception ex)
-                    {
-                        context.Errors.Add(new ValidationError(
-                            context.Document.OriginalQuery,
-                            "auth-required",
-                            $"Authorization is required to access.",
-                            context.Document.Children.ToArray()));
-                        //throw;
-
-                        return null;
+                    {   
+                        throw;
                     }
                 }
             );
