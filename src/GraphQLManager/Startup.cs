@@ -25,6 +25,9 @@ namespace GraphQLManager
         {
             services.AddHttpContextAccessor();
 
+            services.AddSportAdminService();
+            services.AddSportAdminGrpcRepository();
+
             services.AddScoped<SportAdminSchema>();
 
             services.AddGraphQL( options =>
@@ -34,7 +37,7 @@ namespace GraphQLManager
                 .AddGraphQLAuthorization()
                 .AddDataLoader()
                 .AddSystemTextJson()
-                .AddGraphTypes(ServiceLifetime.Singleton)
+                .AddGraphTypes(ServiceLifetime.Scoped)
                 .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User, Token = httpContext.Request.Headers["Authorization"] });
 
             services.AddAuthentication("Bearer")
