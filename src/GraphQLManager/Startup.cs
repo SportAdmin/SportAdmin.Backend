@@ -1,21 +1,13 @@
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
+using GraphQLManager.Extensions;
 using GraphQLManager.GraphQLOperation;
-using GraphQLParser;
-using Grpc.Core;
-using Grpc.Net.Client;
-using IdentityModel.Client;
-using MemberManager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 
 namespace GraphQLManager
 {
@@ -33,9 +25,6 @@ namespace GraphQLManager
         {
             services.AddHttpContextAccessor();
 
-
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddScoped<SportAdminSchema>();
 
             services.AddGraphQL( options =>
@@ -48,48 +37,15 @@ namespace GraphQLManager
                 .AddGraphTypes(ServiceLifetime.Singleton)
                 .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User, Token = httpContext.Request.Headers["Authorization"] });
 
-            services.AddAuthentication("bearer")
-                   .AddIdentityServerAuthentication("bearer", options =>
+            services.AddAuthentication("Bearer")
+                   .AddIdentityServerAuthentication("Bearer", options =>
                    {
                        options.Authority = _config["IdentityManager:ServerUrl"];
                        options.RequireHttpsMetadata = _config.GetValue<bool>("IdentityManager:RequireHttpsMetadata");
                     });
             
             services
-                .AddGrpcClient<Members.MembersClient>(o =>
-                {
-                    o.Address = new Uri(_config["MemberManager:ServerUrl"]);
-                })
-                .ConfigurePrimaryHttpMessageHandler(() =>
-                {
-                    var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
-                                                    _config["MemberManager:CertPassword"]);
-
-                    var handler = new HttpClientHandler();
-                    handler.ClientCertificates.Add(cert);
-
-                    var opt = new GrpcChannelOptions()
-                    {
-                        HttpClient = new HttpClient(handler)
-                    };
-
-                    return handler;
-                })
-                .ConfigureChannel((s, o) =>
-                {
-                    var callCredentials = CallCredentials.FromInterceptor((context, metadata) =>
-                    {
-                        string token = s.GetService<IHttpContextAccessor>().HttpContext.Request.Headers["Authorization"];
-
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            metadata.Add("Authorization", token);
-                        }
-                        return Task.CompletedTask;
-                    });
-
-                    o.Credentials = ChannelCredentials.Create(new SslCredentials(), callCredentials);
-                });
+                .AddMemberClient(_config);
 
         }
 
@@ -112,7 +68,7 @@ namespace GraphQLManager
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Hello World!");
+                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client.");
                 });
             });
         }
