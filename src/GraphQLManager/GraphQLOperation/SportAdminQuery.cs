@@ -28,6 +28,11 @@ namespace GraphQLManager.GraphQLOperation
                     {
                         var UserContext = context.UserContext as IProvideClaimsPrincipal;
 
+                        if(!UserContext.User.Identity.IsAuthenticated)
+                        {
+                            return null;
+                        }
+
                         var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
                                                         _config["MemberManager:CertPassword"]);
 
