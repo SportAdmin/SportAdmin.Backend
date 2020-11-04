@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using MemberManager.Extensions;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -31,25 +32,7 @@ namespace MemberManager
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication()
-                   .AddIdentityServerAuthentication("Bearer", options =>
-                   {
-                       options.Authority = _config["IdentityManager:ServerUrl"];
-                       options.RequireHttpsMetadata = _config.GetValue<bool>("IdentityManager:RequireHttpsMetadata");
-                   })
-                .AddCertificate(opt =>
-                {
-                    opt.AllowedCertificateTypes = CertificateTypes.SelfSigned;
-                    opt.RevocationMode = X509RevocationMode.NoCheck; // Self-Signed Certs (Development)
-                    opt.Events = new CertificateAuthenticationEvents()
-                    {
-                        OnCertificateValidated = ctx =>
-                        {
-                            // Write additional Validation  
-                            ctx.Success();
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
+                .AddSportAdminAuthentication(_config);
 
             services.AddAuthorization(options =>
             {
@@ -82,7 +65,7 @@ namespace MemberManager
 
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client.");
                 });
             });
         }
