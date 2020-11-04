@@ -14,12 +14,8 @@ namespace GraphQLManager.GraphQLOperation
 {
     public class SportAdminQuery : ObjectGraphType
     {
-        private readonly IConfiguration _config;
-
-        public SportAdminQuery(IConfiguration config)
+        public SportAdminQuery(IConfiguration config, Members.MembersClient client)
         {
-            _config = config;
-
             FieldAsync<MemberGraphType>(
                 "me",
                 resolve: async context =>
@@ -33,30 +29,12 @@ namespace GraphQLManager.GraphQLOperation
                             return null;
                         }
 
-                        var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
-                                                        _config["MemberManager:CertPassword"]);
-
-                        var handler = new HttpClientHandler();
-                        handler.ClientCertificates.Add(cert);
-
-                        var opt = new GrpcChannelOptions()
-                        {
-                            HttpClient = new HttpClient(handler)
-                        };
-
-                        using var channel = GrpcChannel.ForAddress(_config["MemberManager:ServerUrl"], opt);
-                        var client = new Members.MembersClient(channel);
-
-                        var headers = new Metadata();
-                        headers.Add("Authorization", UserContext.Token);
-
                         var reply = await client.getMemberAsync(
-                                      new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value },
-                                      headers);
+                                      new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value });
 
                         MemberItem item = new MemberItem()
                         {
-                            Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value,
+                            Id = reply.Id,
                             FirstName = reply.FirstName,
                             LastName = reply.LastName
                         };
