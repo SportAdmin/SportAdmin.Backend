@@ -1,6 +1,6 @@
 # SportAdmin.Backend
 
-#Create cert
+## Create cert
 
 first run
 Set-ExecutionPolicy ByPass -Scope Process

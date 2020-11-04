@@ -28,6 +28,11 @@ namespace GraphQLManager.GraphQLOperation
                     {
                         var UserContext = context.UserContext as IProvideClaimsPrincipal;
 
+                        if(!UserContext.User.Identity.IsAuthenticated)
+                        {
+                            return null;
+                        }
+
                         var cert = new X509Certificate2(_config["MemberManager:CertFileName"],
                                                         _config["MemberManager:CertPassword"]);
 
@@ -43,7 +48,7 @@ namespace GraphQLManager.GraphQLOperation
                         var client = new Members.MembersClient(channel);
 
                         var headers = new Metadata();
-                        headers.Add("Authorization", "ghh" + UserContext.Token);
+                        headers.Add("Authorization", UserContext.Token);
 
                         var reply = await client.getMemberAsync(
                                       new MemberRequest { Id = UserContext.User.Claims.Where(w => w.Type == "sub").FirstOrDefault()?.Value },
