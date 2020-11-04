@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/Timestamp.proto";
+
+option csharp_namespace = "MemberManager";
+
+package member;
+
+// The member service definition.
+service Members {
+  // Sends a member
+  rpc getMember (MemberRequest) returns (MemberReply);
+}
+
+// The request message containing the member's id.
+message MemberRequest {
+  string id = 1;
+}
+
+// The response message containing the member.
+message MemberReply {
+  string Id = 1;
+  string FirstName = 2;
+  string LastName = 3;
+  google.protobuf.Timestamp Born = 4; 
+  string Email = 5;
+
+  string Street = 6; 
+  string ZIP  = 7;
+  string City = 8;
+}
